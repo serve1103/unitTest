@@ -1,4 +1,4 @@
-// src/user/user.service.spec.ts
+// src/user/spec/user.service.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '../user.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -36,19 +36,13 @@ describe('UserService', () => {
     jest.spyOn(repository, 'create').mockReturnValue(user as any);
     jest.spyOn(repository, 'save').mockResolvedValue(user as any);
 
-    console.log('유저 생성 중 : ', createUserDto);
-    const result = await service.create(createUserDto);
-    console.log('유저 생성 완 : ', result);
-
     expect(await service.create(createUserDto)).toEqual(user);
   });
 
   it('모든 유저 조회', async () => {
-    const user = { id: 1, name: 'John', age: 25, email: 'john@example.com' };
+    const user = { id: 1, name: 'John', age: 25, email: 'john@example.com', isActive: true };
     
     jest.spyOn(repository, 'find').mockResolvedValue([user]);
-
-    console.log('모든 유저 목록 : \n', user);
 
     expect(await service.findAll()).toEqual([user]);
   });
@@ -65,11 +59,8 @@ describe('UserService', () => {
     const updateUserDto: CreateUserDto = { name: 'John', age: 26, email: 'john@example.com' };
     const user = { id: 1, ...updateUserDto };
     
-    jest.spyOn(repository, 'findOneBy').mockResolvedValue(user as any);
     jest.spyOn(repository, 'update').mockResolvedValue(user as any);
-
-    const result = await service.update(1, updateUserDto);
-    console.log('수정 유저 정보', result);
+    jest.spyOn(repository, 'findOneBy').mockResolvedValue(user as any);
 
     expect(await service.update(1, updateUserDto)).toEqual(user);
   });
@@ -78,7 +69,6 @@ describe('UserService', () => {
     jest.spyOn(repository, 'delete').mockResolvedValue(undefined);
 
     await service.remove(1);
-
     expect(repository.delete).toHaveBeenCalledWith(1);
   });
 
@@ -90,5 +80,16 @@ describe('UserService', () => {
     jest.spyOn(repository, 'findOneBy').mockResolvedValue(user as any);
 
     expect(await service.updateEmail(1, updateEmailDto)).toEqual(user);
+  });
+
+  // 새로운 테스트: 활성 상태 변경
+  it('유저 활성 상태 변경', async () => {
+    const user = { id: 1, name: 'John', age: 25, email: 'john@example.com', isActive: true };
+    const updatedUser = { ...user, isActive: false };
+
+    jest.spyOn(repository, 'findOneBy').mockResolvedValue(user as any);
+    jest.spyOn(repository, 'save').mockResolvedValue(updatedUser as any);
+
+    expect(await service.toggleActiveStatus(1)).toEqual(updatedUser);
   });
 });

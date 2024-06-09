@@ -1,4 +1,4 @@
-// src/user/user.controller.spec.ts
+// src/user/spec/user.controller.spec.ts
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
@@ -46,7 +46,7 @@ describe('UserController', () => {
 
   describe('findAll', () => {
     it('모든 유저를 조회', async () => {
-      const user = { id: 1, name: 'John', age: 25, email: 'john@example.com' };
+      const user = { id: 1, name: 'John', age: 25, email: 'john@example.com', isActive: true };
 
       jest.spyOn(service, 'findAll').mockResolvedValue([user]);
 
@@ -92,6 +92,18 @@ describe('UserController', () => {
       jest.spyOn(service, 'updateEmail').mockResolvedValue(user as any);
 
       expect(await controller.updateEmail('1', updateEmailDto)).toEqual(user);
+    });
+  });
+
+  // 새로운 테스트: 활성 상태 변경
+  describe('toggleActiveStatus', () => {
+    it('특정 유저의 활성 상태를 변경하는', async () => {
+      const user = { id: 1, name: 'John', age: 25, email: 'john@example.com', isActive: true };
+      const updatedUser = { ...user, isActive: false };
+
+      jest.spyOn(service, 'toggleActiveStatus').mockResolvedValue(updatedUser as any);
+
+      expect(await controller.toggleActiveStatus('1')).toEqual(updatedUser);
     });
   });
 });

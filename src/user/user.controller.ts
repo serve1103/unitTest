@@ -2,39 +2,67 @@
 import { Controller, Get, Post, Body, Param, Put, Delete, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateEmailDto } from './dto/user.dto';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 
-@Controller('user') // '/users' 경로에 대한 요청을 처리하는 컨트롤러
+@ApiTags('users') // Swagger 태그 추가
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post() // HTTP POST 요청을 처리하는 메소드
+  @Post()
+  @ApiOperation({ summary: '새 유저 생성' }) // 한글로 변경
+  @ApiResponse({ status: 201, description: '유저가 성공적으로 생성되었습니다.' })
+  @ApiBody({ type: CreateUserDto })
   create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto); // 새로운 유저 생성
+    return this.userService.create(createUserDto);
   }
 
-  @Get() // HTTP GET 요청을 처리하는 메소드
+  @Get()
+  @ApiOperation({ summary: '모든 유저 조회' }) // 한글로 변경
+  @ApiResponse({ status: 200, description: '모든 유저를 반환합니다.' })
   findAll() {
-    return this.userService.findAll(); // 모든 유저 조회
+    return this.userService.findAll();
   }
 
-  @Get(':id') // 특정 유저 조회를 위한 HTTP GET 요청 처리
+  @Get(':id')
+  @ApiOperation({ summary: 'ID로 유저 조회' }) // 한글로 변경
+  @ApiParam({ name: 'id', description: '유저 ID' })
+  @ApiResponse({ status: 200, description: '주어진 ID의 유저를 반환합니다.' })
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id); // 주어진 id로 유저 조회
+    return this.userService.findOne(+id);
   }
 
-  @Put(':id') // 특정 유저 정보를 업데이트하는 HTTP PUT 요청 처리
+  @Put(':id')
+  @ApiOperation({ summary: '유저 업데이트' }) // 한글로 변경
+  @ApiParam({ name: 'id', description: '유저 ID' })
+  @ApiBody({ type: CreateUserDto })
+  @ApiResponse({ status: 200, description: '유저가 성공적으로 업데이트되었습니다.' })
   update(@Param('id') id: string, @Body() updateUserDto: CreateUserDto) {
-    return this.userService.update(+id, updateUserDto); // 주어진 id의 유저 정보 업데이트
+    return this.userService.update(+id, updateUserDto);
   }
 
-  @Delete(':id') // 특정 유저를 삭제하는 HTTP DELETE 요청 처리
+  @Delete(':id')
+  @ApiOperation({ summary: '유저 삭제' }) // 한글로 변경
+  @ApiParam({ name: 'id', description: '유저 ID' })
+  @ApiResponse({ status: 200, description: '유저가 성공적으로 삭제되었습니다.' })
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id); // 주어진 id의 유저 삭제
+    return this.userService.remove(+id);
   }
 
-  // 이메일 업데이트 엔드포인트 추가
   @Patch(':id/email')
+  @ApiOperation({ summary: '유저 이메일 업데이트' }) // 한글로 변경
+  @ApiParam({ name: 'id', description: '유저 ID' })
+  @ApiBody({ type: UpdateEmailDto })
+  @ApiResponse({ status: 200, description: '이메일이 성공적으로 업데이트되었습니다.' })
   updateEmail(@Param('id') id: string, @Body() updateEmailDto: UpdateEmailDto) {
     return this.userService.updateEmail(+id, updateEmailDto);
+  }
+
+  @Patch(':id/toggle-active')
+  @ApiOperation({ summary: '유저 활성 상태 변경' }) // 한글로 변경
+  @ApiParam({ name: 'id', description: '유저 ID' })
+  @ApiResponse({ status: 200, description: '유저의 활성 상태가 성공적으로 변경되었습니다.' })
+  toggleActiveStatus(@Param('id') id: string) {
+    return this.userService.toggleActiveStatus(+id);
   }
 }
